@@ -231,6 +231,7 @@ details.card[open] summary{margin-bottom:10px}
       <li><b>Kısa vade (3–10 işlem günü):</b> zarar durdur günlük ATR'nin 1,5 katı aşağıda, hedef 3 katı yukarıda (kazanç/risk 2). 52 haftalık zirve aradaysa hedef zirvenin hemen altına çekilir.</li>
       <li><b>Orta vade (yaklaşık 12 ay):</b> hedef, analistlerin hedef fiyat ortalamasıdır. Analist hedefi yoksa ya da %10'dan az yukarıdaysa 52 haftalık zirve kullanılır. Zarar durdur, 200 günlük ortalamanın biraz altı; en fazla %20 aşağıda. Ana eğilimi aşağı olan hisseler önerilmez.</li>
       <li>Her listede aynı sektörden en fazla bir hisse yer alır, böylece üç öneri aynı riske bağlanmaz.</li>
+      <li><b>Elenenler:</b> kazanç/risk oranı 1,8'in altında kalanlar (orta vadede 1,5), hedefi gün içinde %1'den, kısa vadede %3'ten az olanlar, puanı 50'nin altındaki hisseler, analist hedefi %70'ten ya da zirve hedefi %40'tan fazla yukarıda olanlar (bu kadar büyük beklentiler genellikle gerçekçi değildir) ve ABD'de piyasa değeri 1 milyar doların altındaki şirketler. Bu yüzden bazen üçten az öneri çıkar.</li>
       <li><b>Bu seviyeler tahmin değildir.</b> Hedefin tutma olasılığını göstermez; oynaklığa ve analist beklentisine göre çizilmiş bir plandır. Analist hedefleri sık sık tutmaz, BIST'te TL bazlı oldukları için enflasyonu da içerir.</li>
     </ul>
   </details>
@@ -813,6 +814,10 @@ function svOrta(o){var g=o.fiyat;if(!g)return null;var h=null,kay="";
   if(B(o.hedef)&&o.hedef>g*1.1&&o.hedef<g*2.2){h=o.hedef;kay="analist"}else if(o.zirve&&o.zirve>g*1.1){h=o.zirve;kay="zirve"}
   if(!h)return null;var a=o.atr||g*.03,st=Math.max(Math.min(o.m200?o.m200*.97:g*.85,g-2*a),g*.8);
   return {g:g,h:h,st:st,sure:kay==="analist"?"Yaklaşık 12 ay (analist hedefi)":"Süre belirsiz (önceki zirveye dönüş)",not:kay==="analist"?"Hedef, analistlerin hedef fiyat ortalamasıdır.":"Analist hedefi olmadığı için 52 haftalık zirve hedef alındı.",kay:kay}}
+function uygun(o,vade,pz){var x=o.sv;if(!x||!(x.st<x.g&&x.h>x.g))return false;var hy=(x.h/x.g-1)*100,rr=(x.h-x.g)/(x.g-x.st);
+  if(vade==="gun")return hy>=1&&rr>=1.8&&(pz==="emtia"||o.puanG>=50);
+  if(vade==="kisa")return hy>=3&&rr>=1.8&&(pz==="emtia"||o.puanG>=50);
+  return rr>=1.5&&(x.kay==="analist"?hy<=70:hy<=40)&&(pz!=="abd"||o.mc>=1e9);}
 function sektorBir(L,n){var g={},r=[];for(var i=0;i<L.length&&r.length<n;i++){var k=L[i].sek||L[i].kod;if(g[k])continue;g[k]=1;r.push(L[i])}return r}
 function onerilerBul(pz,vade){
   var L,sv=vade==="gun"?svGun:vade==="kisa"?svKisa:svOrta,ek;
@@ -822,7 +827,7 @@ function onerilerBul(pz,vade){
     else if(vade==="kisa")L=L.filter(function(o){return o.m50&&o.fiyat>o.m50&&B(o.rsi)&&o.rsi>=45&&o.rsi<=70});
     else L=L.filter(function(o){return o.egilim==="Yükselen"});
     L.sort(function(a,b){return b.K-a.K});
-    return L.map(function(o){o.sv=sv(o);o.puanG=o.K;return o}).filter(function(o){return o.sv}).slice(0,3);
+    return L.map(function(o){o.sv=sv(o);o.puanG=o.K;return o}).filter(function(o){return uygun(o,vade,pz)}).slice(0,3);
   }
   var v=veri[pz];if(!v)return null;L=v.likit.filter(function(o){return !o.bozuk});
   if(vade==="gun"){
@@ -837,7 +842,7 @@ function onerilerBul(pz,vade){
     L.forEach(function(o){var x=svOrta(o);o._yuk=x?(x.h/x.g-1)*100:0});
     L=L.filter(function(o){return o._yuk>0}).sort(function(a,b){return (b.orta+Math.min(b._yuk,50)*.5)-(a.orta+Math.min(a._yuk,50)*.5)});
   }
-  return sektorBir(L.map(function(o){o.sv=sv(o);o.puanG=vade==="orta"?o.orta:o.kisaP;return o}).filter(function(o){return o.sv&&o.sv.st<o.sv.g&&o.sv.h>o.sv.g}),3);
+  return sektorBir(L.map(function(o){o.sv=sv(o);o.puanG=vade==="orta"?o.orta:o.kisaP;return o}).filter(function(o){return uygun(o,vade,pz)}),3);
 }
 function onNeden(o,pz,vade){
   var r=[];
@@ -869,7 +874,7 @@ function oneriCiz(){
   var birim=pz==="abd"?" $":pz==="bist"?" TL":"";
   out.innerHTML=L.map(function(o,i){
     var x=o.sv,hy=(x.h/x.g-1)*100,sy2=(x.st/x.g-1)*100,rr=(x.h-x.g)/(x.g-x.st),b=pz==="emtia"?" "+o.birim:birim,adet=onAdet(o,pz,vade);
-    var alt=pz==="emtia"?esc(o.ad):esc(sekAd(o.sek))+(o.ad?" · "+esc(o.ad):"");
+    var alt=pz==="emtia"?(o.birim==="TL"?"BIST'te TL ile işlem görür":o.ad.indexOf("(")>0?esc(o.ad.split("(")[1].replace(")",""))+" · uluslararası fiyat":"Uluslararası fiyat, "+o.birim.replace("¢","sent")):esc(sekAd(o.sek))+(o.ad?" · "+esc(o.ad):"");
     return '<div class="oc"><div class="oc-ust"><span class="sira">'+(i+1)+'</span><div><b>'+esc(pz==="emtia"?o.ad.split(" (")[0]:o.kod)+'</b><small>'+alt+'</small></div><span class="pill '+(o.puanG>=75?"good":o.puanG>=55?"warn":"bad")+'">'+Math.round(o.puanG)+'</span></div>'+
       '<div class="oc-sv"><div><span>Giriş</span><b>'+sy(x.g)+'</b><em>'+b.trim()+'</em></div><div class="h"><span>Hedef</span><b>'+sy(x.h)+'</b><em class="up">'+yz(hy,1)+'</em></div><div class="s"><span>Zarar durdur</span><b>'+sy(x.st)+'</b><em class="dn">'+yz(sy2,1)+'</em></div></div>'+
       '<p><b>Süre:</b> '+esc(x.sure)+' · <b>Kazanç/risk:</b> '+sy(rr,1)+'</p>'+
