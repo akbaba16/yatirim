@@ -41,8 +41,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:
 .wrap{max-width:720px;margin:0 auto;padding:20px 16px 48px;display:flex;flex-direction:column;gap:20px}
 header h1{font-family:var(--display);font-weight:700;font-size:1.7rem;line-height:1.15;margin:0;text-wrap:balance}
 header p{margin:6px 0 0;color:var(--muted);font-size:.95rem;max-width:60ch}
-nav{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;position:sticky;top:8px;z-index:5}
-nav a{text-align:center;padding:10px 2px;border-radius:9px;color:var(--muted);text-decoration:none;font-weight:600;font-size:.84rem}
+nav{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;position:sticky;top:8px;z-index:5}
+nav a{text-align:center;padding:10px 2px;border-radius:9px;color:var(--muted);text-decoration:none;font-weight:600;font-size:.78rem}
 nav a[aria-current="page"]{background:var(--accent);color:var(--accent-ink)}
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--emtia);outline-offset:2px}
 section{display:none;flex-direction:column;gap:16px}
@@ -114,6 +114,20 @@ details.card summary{font-family:var(--display);font-weight:700;font-size:1.05re
 details.card[open] summary{margin-bottom:10px}
 .em-ac{padding:4px 0 12px;border-top:1px dashed var(--line)}
 .em-ac p{margin:6px 0 0;font-size:.9rem;max-width:65ch}
+.oc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.oc-ust{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center}
+.oc-ust .sira{width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-family:var(--display)}
+.oc-ust b{font-family:var(--display);font-size:1.15rem}
+.oc-ust small{display:block;color:var(--muted);font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oc-sv{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.oc-sv div{background:var(--paper);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:1px}
+.oc-sv span{font-size:.72rem;color:var(--muted)}
+.oc-sv b{font-variant-numeric:tabular-nums;font-size:1rem}
+.oc-sv em{font-style:normal;font-size:.8rem;font-weight:600;font-variant-numeric:tabular-nums}
+.oc-sv .h{box-shadow:inset 0 -3px 0 var(--good)}.oc-sv .s{box-shadow:inset 0 -3px 0 var(--bad)}
+.up{color:var(--good)}.dn{color:var(--bad)}
+.oc p{margin:0;font-size:.86rem;color:var(--muted)}
+.oc p b{color:var(--ink);font-weight:600}
 </style>
 </head>
 <body>
@@ -124,6 +138,7 @@ details.card[open] summary{margin-bottom:10px}
 </header>
 
 <nav aria-label="Bölümler">
+  <a href="#oneri" data-tab="oneri">Öneri</a>
   <a href="#plan" data-tab="plan">Bütçe</a>
   <a href="#tarama" data-tab="tarama">Tarama</a>
   <a href="#takip" data-tab="takip">Takip</a>
@@ -191,6 +206,34 @@ details.card[open] summary{margin-bottom:10px}
     </div>
     <p style="margin:0;color:var(--muted);font-size:.82rem">Kayıtlar yalnızca bu cihazdaki tarayıcıda tutulur.</p>
   </div>
+</section>
+
+<!-- ÖNERİ -->
+<section id="s-oneri">
+  <div class="card">
+    <div class="seg" role="group" aria-label="Piyasa" id="on-pazar">
+      <button type="button" data-v="bist" aria-pressed="true">BIST</button>
+      <button type="button" data-v="abd" aria-pressed="false">ABD</button>
+      <button type="button" data-v="emtia" aria-pressed="false">Emtia</button>
+    </div>
+    <div class="seg" role="group" aria-label="Vade" id="on-vade">
+      <button type="button" data-v="gun" aria-pressed="false">Gün içi</button>
+      <button type="button" data-v="kisa" aria-pressed="true">Kısa vade</button>
+      <button type="button" data-v="orta" aria-pressed="false">Orta vade</button>
+    </div>
+    <p id="on-bilgi" style="margin:0;font-size:.86rem;color:var(--muted)"></p>
+  </div>
+  <div id="on-liste" style="display:flex;flex-direction:column;gap:12px"></div>
+  <details class="card">
+    <summary>Seviyeler nasıl hesaplanıyor?</summary>
+    <ul class="rules">
+      <li><b>Gün içi:</b> giriş son fiyat. Zarar durdur, saatlik ortalama oynaklığın (saatlik ATR) 1,5 katı aşağıda; fiyat gün içi ortalama fiyatın (VWAP) üstündeyse VWAP'ın hemen altı. Hedef, riskin iki katı yukarıda. Aday olmak için o gün yükselmiş, hacmi ortalamanın en az 1,2 katı, fiyatı VWAP'ın ve 50 günlük ortalamanın üstünde, saatlik RSI'ı 50–72 arasında olmalı.</li>
+      <li><b>Kısa vade (3–10 işlem günü):</b> zarar durdur günlük ATR'nin 1,5 katı aşağıda, hedef 3 katı yukarıda (kazanç/risk 2). 52 haftalık zirve aradaysa hedef zirvenin hemen altına çekilir.</li>
+      <li><b>Orta vade (yaklaşık 12 ay):</b> hedef, analistlerin hedef fiyat ortalamasıdır. Analist hedefi yoksa ya da %10'dan az yukarıdaysa 52 haftalık zirve kullanılır. Zarar durdur, 200 günlük ortalamanın biraz altı; en fazla %20 aşağıda. Ana eğilimi aşağı olan hisseler önerilmez.</li>
+      <li>Her listede aynı sektörden en fazla bir hisse yer alır, böylece üç öneri aynı riske bağlanmaz.</li>
+      <li><b>Bu seviyeler tahmin değildir.</b> Hedefin tutma olasılığını göstermez; oynaklığa ve analist beklentisine göre çizilmiş bir plandır. Analist hedefleri sık sık tutmaz, BIST'te TL bazlı oldukları için enflasyonu da içerir.</li>
+    </ul>
+  </details>
 </section>
 
 <!-- TARAMA -->
@@ -327,9 +370,9 @@ var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"
 var store={get:function(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 
 /* ---------- sekmeler ---------- */
-var tabs=["plan","tarama","takip","hisse","risk"];
+var tabs=["oneri","plan","tarama","takip","hisse","risk"];
 function show(){
-  var t=location.hash.replace("#","");if(tabs.indexOf(t)<0)t="plan";
+  var t=location.hash.replace("#","");if(tabs.indexOf(t)<0)t="oneri";
   tabs.forEach(function(x){$("s-"+x).classList.toggle("on",x===t)});
   Array.prototype.forEach.call(document.querySelectorAll("nav a"),function(a){
     if(a.dataset.tab===t)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");
@@ -351,7 +394,7 @@ function plan(){
   var kisa=Math.min(yat*kisaOran/100,bist*.4);
   var gunOran=ekran<5?0:(den==="yeni"?.25:.4);
   var gun=kisa*gunOran, birkac=kisa-gun, orta=bist-kisa;
-  lastPlan={tutar:tutar,fon:fon,bist:bist,abd:abd,emtia:emtia,nakit:nakit,kisa:kisa,gun:gun,birkac:birkac,orta:orta};
+  lastPlan={ry:den==="yeni"?1:2,tutar:tutar,fon:fon,bist:bist,abd:abd,emtia:emtia,nakit:nakit,kisa:kisa,gun:gun,birkac:birkac,orta:orta};
 
   var segs=[["Acil durum fonu",fon,"var(--nakit)"],["BIST",bist,"var(--bist)"],["ABD borsaları",abd,"var(--abd)"],["Emtia",emtia,"var(--emtia)"],["Nakit yedek",nakit,"var(--nakit)"]];
   var bar=segs.filter(function(s){return s[1]>0}).map(function(s){return '<i style="width:'+(s[1]/Math.max(tutar,1)*100)+'%;background:'+s[2]+'" title="'+s[0]+'"></i>'}).join("");
@@ -464,8 +507,8 @@ function risk(){
 }
 
 /* ---------- veri katmanı: TradingView tarayıcısı, doğrudan telefondan ---------- */
-var KOL=["name","close","change","relative_volume_10d_calc","price_earnings_ttm","earnings_per_share_diluted_yoy_growth_ttm","dividends_yield_current","sector","RSI","SMA50","SMA200","price_52_week_high","price_book_fq","return_on_equity","Perf.1M","volume","update_mode","description","price_52_week_low","Perf.W","Perf.3M","Perf.Y","MACD.macd","MACD.signal","EMA20","ATR","debt_to_equity","net_margin_ttm","market_cap_basic","recommendation_mark","total_revenue_ttm","net_income_ttm","total_revenue_yoy_growth_ttm","net_income_yoy_growth_ttm","net_debt_fq","ebitda_ttm","free_cash_flow_ttm","gross_margin_ttm","operating_margin_ttm","current_ratio_fq","earnings_release_date","earnings_release_next_date"];
-var ALAN=["kod","fiyat","deg","rv","fk","buy","tem","sek","rsi","m50","m200","zirve","pd","roe","ay","vol","mod","ad","dip","hafta","uc","yil","macd","macds","ema20","atr","de","nm","mc","an","gelir","netkar","gelirB","karB","netborc","favok","fcf","brut","faal","cari","bilT","sonT"];
+var KOL=["name","close","change","relative_volume_10d_calc","price_earnings_ttm","earnings_per_share_diluted_yoy_growth_ttm","dividends_yield_current","sector","RSI","SMA50","SMA200","price_52_week_high","price_book_fq","return_on_equity","Perf.1M","volume","update_mode","description","price_52_week_low","Perf.W","Perf.3M","Perf.Y","MACD.macd","MACD.signal","EMA20","ATR","debt_to_equity","net_margin_ttm","market_cap_basic","recommendation_mark","total_revenue_ttm","net_income_ttm","total_revenue_yoy_growth_ttm","net_income_yoy_growth_ttm","net_debt_fq","ebitda_ttm","free_cash_flow_ttm","gross_margin_ttm","operating_margin_ttm","current_ratio_fq","earnings_release_date","earnings_release_next_date","price_target_average","VWAP","ATR|60","RSI|60"];
+var ALAN=["kod","fiyat","deg","rv","fk","buy","tem","sek","rsi","m50","m200","zirve","pd","roe","ay","vol","mod","ad","dip","hafta","uc","yil","macd","macds","ema20","atr","de","nm","mc","an","gelir","netkar","gelirB","karB","netborc","favok","fcf","brut","faal","cari","bilT","sonT","hedef","vwap","atr1s","rsi1s"];
 var PAZ={bist:{yol:"turkey",esik:2e7,ad:"BIST",para:"TL"},abd:{yol:"america",esik:3e7,ad:"ABD",para:"$"}};
 var SEK={"Finance":"Finans","Energy minerals":"Enerji madenleri","Non-energy minerals":"Metal ve çimento","Electronic technology":"Elektronik teknoloji","Industrial services":"Sanayi hizmetleri","Retail trade":"Perakende","Transportation":"Ulaştırma","Consumer durables":"Dayanıklı tüketim","Consumer non-durables":"Dayanıksız tüketim","Communications":"İletişim","Producer manufacturing":"İmalat","Utilities":"Enerji dağıtım ve üretim","Process industries":"Kimya ve işleme","Health services":"Sağlık hizmetleri","Health technology":"İlaç ve sağlık teknolojisi","Consumer services":"Tüketici hizmetleri","Distribution services":"Dağıtım","Technology services":"Yazılım ve bilişim","Commercial services":"Ticari hizmetler","Miscellaneous":"Diğer"};
 function sekAd(x){if(!x)return "–";var k=x.charAt(0)+x.slice(1).toLowerCase();return SEK[k]||SEK[x]||x}
@@ -530,7 +573,7 @@ function durumYaz(){
   });
   $("veri-durum").textContent=p.join("  |  ")||"Veri yükleniyor…";
 }
-function herseyiCiz(){durumYaz();taramaCiz();takipCiz()}
+function herseyiCiz(){durumYaz();taramaCiz();takipCiz();if(typeof oneriCiz==="function")oneriCiz()}
 
 /* ---------- piyasa özeti ---------- */
 function piyasa(){
@@ -548,9 +591,9 @@ var veriE=null,yukE=null,hataE=null,emtiaAcik={};
 function emtiaYukle(zorla){
   if(yukE)return yukE;if(veriE&&!zorla)return Promise.resolve(veriE);
   hataE=null;
-  yukE=scan("global",{columns:["name","close","change","RSI","SMA50","SMA200","price_52_week_high","price_52_week_low","Perf.W","Perf.1M","Perf.3M","Perf.Y","ATR","MACD.macd","MACD.signal"],symbols:{tickers:EMT.map(function(e){return e[0]})}}).then(function(j){
+  yukE=scan("global",{columns:["name","close","change","RSI","SMA50","SMA200","price_52_week_high","price_52_week_low","Perf.W","Perf.1M","Perf.3M","Perf.Y","ATR","MACD.macd","MACD.signal","ATR|60","RSI|60","VWAP"],symbols:{tickers:EMT.map(function(e){return e[0]})}}).then(function(j){
     var m={};j.data.forEach(function(x){m[x.s]=x.d});
-    var L=EMT.filter(function(e){return m[e[0]]}).map(function(e){var d=m[e[0]],o={sem:e[0],kod:d[0],ad:e[1],birim:e[2],fiyat:d[1],deg:d[2],rsi:d[3],m50:d[4],m200:d[5],zirve:d[6],dip:d[7],hafta:d[8],ay:d[9],uc:d[10],yil:d[11],atr:d[12],macd:d[13],macds:d[14]},p=0,mx=0;
+    var L=EMT.filter(function(e){return m[e[0]]}).map(function(e){var d=m[e[0]],o={sem:e[0],kod:d[0],ad:e[1],birim:e[2],fiyat:d[1],deg:d[2],rsi:d[3],m50:d[4],m200:d[5],zirve:d[6],dip:d[7],hafta:d[8],ay:d[9],uc:d[10],yil:d[11],atr:d[12],macd:d[13],macds:d[14],atr1s:d[15],rsi1s:d[16],vwap:d[17]},p=0,mx=0;
       if(o.m200){var f=(o.fiyat/o.m200-1)*100;o.d200=f;mx+=15;p+=f>25?10:f>=0?15:f>=-10?3:0}
       if(o.m50&&o.m200){mx+=10;p+=o.m50>o.m200?10:2}
       if(B(o.rsi)){mx+=10;p+=o.rsi>70?3:o.rsi>65?7:o.rsi>=45?10:o.rsi>=30?6:4}
@@ -560,7 +603,7 @@ function emtiaYukle(zorla){
     if(!L.length)throw new Error("Boş yanıt geldi");
     veriE={zaman:new Date(),liste:L};return veriE;
   }).catch(function(e){hataE="Emtia verisi alınamadı ("+(e&&e.message?e.message:"bağlantı hatası")+"). Yenile'ye basın.";throw e})
-  .then(function(v){yukE=null;taramaCiz();return v},function(e){yukE=null;taramaCiz();throw e});
+  .then(function(v){yukE=null;taramaCiz();oneriCiz();return v},function(e){yukE=null;taramaCiz();oneriCiz();throw e});
   return yukE;
 }
 function emtiaYorum(o){
@@ -755,11 +798,99 @@ $("tk-liste").addEventListener("click",function(e){
   if(b.dataset.is==="analiz"&&o){takipAcik[id]=!takipAcik[id];takipCiz()}
 });
 
+/* ---------- öneriler ---------- */
+var onPz=store.get("yp-on-pz","bist"),onVade=store.get("yp-on-vade","kisa"),onListe=[];
+if(["bist","abd","emtia"].indexOf(onPz)<0)onPz="bist";if(["gun","kisa","orta"].indexOf(onVade)<0)onVade="kisa";
+function seansAcik(pz){
+  var p=function(tz){var o={};new Intl.DateTimeFormat("en-GB",{timeZone:tz,weekday:"short",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(new Date()).forEach(function(x){o[x.type]=x.value});return {g:o.weekday,dk:(Number(o.hour)%24)*60+Number(o.minute)}};
+  var t=pz==="abd"?p("America/New_York"):p("Europe/Istanbul");
+  if(t.g==="Sat"||t.g==="Sun")return false;
+  return pz==="abd"?(t.dk>=570&&t.dk<960):pz==="bist"?(t.dk>=600&&t.dk<1090):true;
+}
+function svGun(o){var a=o.atr1s,g=o.fiyat;if(!(a>0)||!g)return null;var st=g-1.5*a;if(B(o.vwap)&&o.vwap<g-.5*a&&o.vwap-.25*a>st)st=o.vwap-.25*a;return {g:g,h:g+2*(g-st),st:st,sure:"Aynı seans içinde",not:""}}
+function svKisa(o){var a=o.atr,g=o.fiyat;if(!(a>0)||!g)return null;var st=g-1.5*a,h=g+3*a,not="";if(o.zirve&&o.zirve>g+1.5*a&&o.zirve<h){h=o.zirve*.99;not="Hedef 52 haftalık zirvenin hemen altına çekildi; zirve direnç olabilir."}return {g:g,h:h,st:st,sure:"3–10 işlem günü",not:not}}
+function svOrta(o){var g=o.fiyat;if(!g)return null;var h=null,kay="";
+  if(B(o.hedef)&&o.hedef>g*1.1&&o.hedef<g*2.2){h=o.hedef;kay="analist"}else if(o.zirve&&o.zirve>g*1.1){h=o.zirve;kay="zirve"}
+  if(!h)return null;var a=o.atr||g*.03,st=Math.max(Math.min(o.m200?o.m200*.97:g*.85,g-2*a),g*.8);
+  return {g:g,h:h,st:st,sure:kay==="analist"?"Yaklaşık 12 ay (analist hedefi)":"Süre belirsiz (önceki zirveye dönüş)",not:kay==="analist"?"Hedef, analistlerin hedef fiyat ortalamasıdır.":"Analist hedefi olmadığı için 52 haftalık zirve hedef alındı.",kay:kay}}
+function sektorBir(L,n){var g={},r=[];for(var i=0;i<L.length&&r.length<n;i++){var k=L[i].sek||L[i].kod;if(g[k])continue;g[k]=1;r.push(L[i])}return r}
+function onerilerBul(pz,vade){
+  var L,sv=vade==="gun"?svGun:vade==="kisa"?svKisa:svOrta,ek;
+  if(pz==="emtia"){
+    if(!veriE)return null;L=veriE.liste.slice();
+    if(vade==="gun")L=L.filter(function(o){return o.deg>0&&B(o.rsi1s)&&o.rsi1s>=50&&o.rsi1s<=72&&(!B(o.vwap)||o.fiyat>o.vwap)});
+    else if(vade==="kisa")L=L.filter(function(o){return o.m50&&o.fiyat>o.m50&&B(o.rsi)&&o.rsi>=45&&o.rsi<=70});
+    else L=L.filter(function(o){return o.egilim==="Yükselen"});
+    L.sort(function(a,b){return b.K-a.K});
+    return L.map(function(o){o.sv=sv(o);o.puanG=o.K;return o}).filter(function(o){return o.sv}).slice(0,3);
+  }
+  var v=veri[pz];if(!v)return null;L=v.likit.filter(function(o){return !o.bozuk});
+  if(vade==="gun"){
+    L=L.filter(function(o){return o.deg>0&&o.rv>=1.2&&B(o.rsi1s)&&o.rsi1s>=50&&o.rsi1s<=72&&o.vwap&&o.fiyat>o.vwap&&o.m50&&o.fiyat>o.m50});
+    L.sort(function(a,b){return b.kisaP*Math.min(b.rv,3)-a.kisaP*Math.min(a.rv,3)});
+  }else if(vade==="kisa"){
+    var A=L.filter(function(o){return o.kisa}).sort(function(a,b){return b.kisaP-a.kisaP});
+    var Y=L.filter(function(o){return !o.kisa&&o.m50&&o.fiyat>o.m50&&B(o.rsi)&&o.rsi>=45&&o.rsi<=65&&o.deg>=0}).sort(function(a,b){return b.kisaP-a.kisaP});
+    L=A.concat(Y);
+  }else{
+    L=L.filter(function(o){return o.m200&&o.fiyat>=o.m200&&o.orta>=55});
+    L.forEach(function(o){var x=svOrta(o);o._yuk=x?(x.h/x.g-1)*100:0});
+    L=L.filter(function(o){return o._yuk>0}).sort(function(a,b){return (b.orta+Math.min(b._yuk,50)*.5)-(a.orta+Math.min(a._yuk,50)*.5)});
+  }
+  return sektorBir(L.map(function(o){o.sv=sv(o);o.puanG=vade==="orta"?o.orta:o.kisaP;return o}).filter(function(o){return o.sv&&o.sv.st<o.sv.g&&o.sv.h>o.sv.g}),3);
+}
+function onNeden(o,pz,vade){
+  var r=[];
+  if(vade==="gun"){r.push("bugün "+yz(o.deg,2));if(B(o.rv))r.push("hacim ortalamanın "+sy(o.rv,1)+" katı");r.push("fiyat gün içi ortalama fiyatın (VWAP) üstünde");if(B(o.rsi1s))r.push("saatlik RSI "+sy(o.rsi1s,0))}
+  else if(pz==="emtia"){r.push(o.egilim.toLowerCase()+" eğilim");if(B(o.rsi))r.push("RSI "+sy(o.rsi,0));r.push("1 ay "+yz(o.ay));if(B(o.macd)&&B(o.macds))r.push("MACD "+(o.macd>o.macds?"yukarı":"aşağı"))}
+  else if(vade==="kisa"){if(o.kisa)r.push("kısa vade ölçütlerinin dördünü karşılıyor");if(B(o.rv))r.push("hacim ortalamanın "+sy(o.rv,1)+" katı");if(B(o.rsi))r.push("RSI "+sy(o.rsi,0));r.push("fiyat 50 günlük ortalamanın üstünde")}
+  else{r.push("orta vade puanı "+Math.round(o.orta));if(o.fk>0&&o.med&&o.fk<o.med)r.push("F/K sektör ortancasının altında");if(B(o.roe))r.push("özsermaye kârlılığı %"+sy(o.roe,0));r.push("ana eğilim yukarı")}
+  return r.join(", ");
+}
+function onAdet(o,pz,vade){
+  if(pz!=="bist"||!lastPlan)return "";
+  var x=o.sv,risk=x.g-x.st;
+  if(vade==="orta"){var pay=lastPlan.orta/3;if(!(pay>0))return "";var n=Math.floor(pay/x.g);return n>0?"Bütçenize göre: <b>"+sy(n,0)+" adet</b> (orta vade payınızın üçte biri, "+tl(n*x.g)+")":"Bütçenizin orta vade payı bu hisseden 1 adet almaya yetmiyor."}
+  var havuz=vade==="gun"?lastPlan.gun:lastPlan.birkac;
+  if(!(havuz>0))return vade==="gun"?"Bütçe planınızda gün içi işleme pay ayrılmadı (Bütçe sekmesinde seansı izleyebildiğiniz gün sayısına bağlı).":"Bütçe planınızda kısa vadeye pay ayrılmadı.";
+  var ry=lastPlan.ry||1,n2=Math.min(Math.floor(havuz*ry/100/risk),Math.floor(havuz*.5/x.g));
+  return n2>0?"Bütçenize göre: <b>"+sy(n2,0)+" adet</b> ("+tl(n2*x.g)+"); zarar durdur çalışırsa kayıp yaklaşık "+tl(n2*risk):"Bu zarar durdurma mesafesiyle kısa vade havuzunuz 1 adede bile yetmiyor; bu işlemi geçin.";
+}
+function oneriCiz(){
+  var out=$("on-liste"),bil=$("on-bilgi"),pz=onPz,vade=onVade;
+  segSec("on-pazar","v",pz);segSec("on-vade","v",vade);
+  var aciklama={gun:"Aynı seans içinde açılıp kapanan işlem. Hedef ya da zarar durdur gelmezse seans sonunda kapatın.",kisa:"Birkaç günden iki haftaya kadar elde tutulan işlem.",orta:"Birkaç aydan bir yıla kadar elde tutulan pozisyon."}[vade];
+  var yukleniyor=pz==="emtia"?yukE:yuk[pz],h=pz==="emtia"?hataE:hata[pz],zaman=pz==="emtia"?(veriE&&veriE.zaman):(veri[pz]&&veri[pz].zaman);
+  var uyari=vade==="gun"&&!seansAcik(pz)?" <b>Seans şu an kapalı;</b> liste son seansın verisine göre. Açılışta fiyatlar değişeceği için girişten önce Yenile'ye basın.":"";
+  bil.innerHTML=esc(aciklama)+(zaman?" Veri: "+saat(zaman)+(pz==="emtia"?"":", 15 dk gecikmeli")+".":"")+uyari;
+  var L=onerilerBul(pz,vade);onListe=L||[];
+  if(!L){out.innerHTML='<div class="card"><p style="margin:0;color:var(--muted)">'+esc(yukleniyor?"Veri alınıyor…":(h||"Veri bekleniyor."))+'</p></div>';return}
+  if(!L.length){out.innerHTML='<div class="card"><p style="margin:0">Şu an bu vade için ölçütlere uyan aday yok.</p><p style="margin:0;color:var(--muted);font-size:.88rem">Bu da bir bilgidir: uygun koşul yokken işlem aramak, kaybettiren işlemlerin en yaygın nedenidir. Başka bir vadeye bakabilir ya da daha sonra Yenile\'ye basabilirsiniz.</p></div>';return}
+  var birim=pz==="abd"?" $":pz==="bist"?" TL":"";
+  out.innerHTML=L.map(function(o,i){
+    var x=o.sv,hy=(x.h/x.g-1)*100,sy2=(x.st/x.g-1)*100,rr=(x.h-x.g)/(x.g-x.st),b=pz==="emtia"?" "+o.birim:birim,adet=onAdet(o,pz,vade);
+    var alt=pz==="emtia"?esc(o.ad):esc(sekAd(o.sek))+(o.ad?" · "+esc(o.ad):"");
+    return '<div class="oc"><div class="oc-ust"><span class="sira">'+(i+1)+'</span><div><b>'+esc(pz==="emtia"?o.ad.split(" (")[0]:o.kod)+'</b><small>'+alt+'</small></div><span class="pill '+(o.puanG>=75?"good":o.puanG>=55?"warn":"bad")+'">'+Math.round(o.puanG)+'</span></div>'+
+      '<div class="oc-sv"><div><span>Giriş</span><b>'+sy(x.g)+'</b><em>'+b.trim()+'</em></div><div class="h"><span>Hedef</span><b>'+sy(x.h)+'</b><em class="up">'+yz(hy,1)+'</em></div><div class="s"><span>Zarar durdur</span><b>'+sy(x.st)+'</b><em class="dn">'+yz(sy2,1)+'</em></div></div>'+
+      '<p><b>Süre:</b> '+esc(x.sure)+' · <b>Kazanç/risk:</b> '+sy(rr,1)+'</p>'+
+      '<p><b>Neden:</b> '+esc(onNeden(o,pz,vade))+'.</p>'+(x.not?'<p>'+esc(x.not)+'</p>':'')+(adet?'<p>'+adet+'</p>':'')+
+      '<button type="button" class="ghost" data-on="'+i+'">Ayrıntı ve analiz</button></div>'}).join("")+
+    '<p style="margin:0;color:var(--muted);font-size:.8rem;padding:0 4px">Seviyeler formülle hesaplanır, tahmin değildir; hedefin tutma olasılığını göstermez. İşleme girerseniz zarar durdurma emrini aynı anda verin. Yatırım tavsiyesi değildir.</p>';
+}
+$("on-liste").addEventListener("click",function(e){
+  var b=e.target.closest("button[data-on]");if(!b)return;var o=onListe[Number(b.dataset.on)];if(!o)return;
+  if(onPz==="emtia"){$("t-pazar").value="emtia";segSec("seg-pazar","pazar","emtia");emtiaAcik={};emtiaAcik[o.sem]=true;taramaCiz();location.hash="tarama";window.scrollTo(0,0);return}
+  hisseAc(o,onPz);
+});
+$("on-pazar").addEventListener("click",function(e){var b=e.target.closest("button[data-v]");if(!b)return;onPz=b.dataset.v;store.set("yp-on-pz",onPz);oneriCiz();if(onPz==="emtia")emtiaYukle().catch(function(){});else tara(onPz).catch(function(){})});
+$("on-vade").addEventListener("click",function(e){var b=e.target.closest("button[data-v]");if(!b)return;onVade=b.dataset.v;store.set("yp-on-vade",onVade);oneriCiz()});
+
 /* ---------- yenileme ---------- */
 function hepsiniYenile(zorla){
   piyasa();
   var ist=["bist"];if(veri.abd||takip.abd.length||$("t-pazar").value==="abd")ist.push("abd");
-  if(veriE||$("t-pazar").value==="emtia")emtiaYukle(zorla).catch(function(){});
+  if(onPz==="abd"&&ist.indexOf("abd")<0)ist.push("abd");
+  if(veriE||$("t-pazar").value==="emtia"||onPz==="emtia")emtiaYukle(zorla).catch(function(){});
   ist.forEach(function(pz){tara(pz,zorla).then(function(){if(acik&&acik.pz===pz){var y=veri[pz].hepsi[acik.o.kod];if(y){acik.o=y;bilancoCiz()}}}).catch(function(){})});
 }
 $("yenile").addEventListener("click",function(){hepsiniYenile(true)});
