@@ -231,7 +231,7 @@ details.card[open] summary{margin-bottom:10px}
       <li><b>Kısa vade (3–10 işlem günü):</b> zarar durdur günlük ATR'nin 1,5 katı aşağıda, hedef 3 katı yukarıda (kazanç/risk 2). 52 haftalık zirve aradaysa hedef zirvenin hemen altına çekilir.</li>
       <li><b>Orta vade (yaklaşık 12 ay):</b> hedef, analistlerin hedef fiyat ortalamasıdır. Analist hedefi yoksa ya da %10'dan az yukarıdaysa 52 haftalık zirve kullanılır. Zarar durdur, 200 günlük ortalamanın biraz altı; en fazla %20 aşağıda. Ana eğilimi aşağı olan hisseler önerilmez.</li>
       <li>Her listede aynı sektörden en fazla bir hisse yer alır, böylece üç öneri aynı riske bağlanmaz.</li>
-      <li><b>Elenenler:</b> kazanç/risk oranı 1,8'in altında kalanlar (orta vadede 1,5), hedefi gün içinde %1'den, kısa vadede %3'ten az olanlar, puanı 50'nin altındaki hisseler, analist hedefi %70'ten ya da zirve hedefi %40'tan fazla yukarıda olanlar (bu kadar büyük beklentiler genellikle gerçekçi değildir) ve ABD'de piyasa değeri 1 milyar doların altındaki şirketler. Bu yüzden bazen üçten az öneri çıkar.</li>
+      <li><b>Elenenler:</b> kazanç/risk oranı 1,8'in altında kalanlar (orta vadede 1,5), hedefi gün içinde %1'den, kısa vadede %3'ten az olanlar, puanı 50'nin altındaki hisseler, analist hedefi %70'ten ya da zirve hedefi %40'tan fazla yukarıda olanlar (bu kadar büyük beklentiler genellikle gerçekçi değildir) ABD'de piyasa değeri 1 milyar doların altındaki şirketler ve orta vadede son bir ayda %20'den fazla düşmüş hisseler. Bu yüzden bazen üçten az öneri çıkar.</li>
       <li><b>Bu seviyeler tahmin değildir.</b> Hedefin tutma olasılığını göstermez; oynaklığa ve analist beklentisine göre çizilmiş bir plandır. Analist hedefleri sık sık tutmaz, BIST'te TL bazlı oldukları için enflasyonu da içerir.</li>
     </ul>
   </details>
@@ -838,7 +838,7 @@ function onerilerBul(pz,vade){
     var Y=L.filter(function(o){return !o.kisa&&o.m50&&o.fiyat>o.m50&&B(o.rsi)&&o.rsi>=45&&o.rsi<=65&&o.deg>=0}).sort(function(a,b){return b.kisaP-a.kisaP});
     L=A.concat(Y);
   }else{
-    L=L.filter(function(o){return o.m200&&o.fiyat>=o.m200&&o.orta>=55});
+    L=L.filter(function(o){return o.m200&&o.fiyat>=o.m200&&o.orta>=55&&!(o.ay<-20)});
     L.forEach(function(o){var x=svOrta(o);o._yuk=x?(x.h/x.g-1)*100:0});
     L=L.filter(function(o){return o._yuk>0}).sort(function(a,b){return (b.orta+Math.min(b._yuk,50)*.5)-(a.orta+Math.min(a._yuk,50)*.5)});
   }
