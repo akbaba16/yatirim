@@ -98,6 +98,22 @@ footer{color:var(--muted);font-size:.82rem;max-width:65ch}
 .analiz p{margin:0 0 6px;font-size:.93rem;max-width:65ch}
 .tk-ust{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
 .tk-btn{display:flex;gap:8px;flex-wrap:wrap}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{background:transparent;color:var(--muted);min-height:38px;padding:6px 4px;font-size:.88rem;border-radius:8px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.lst{display:flex;flex-direction:column}
+.lr{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:8px 0;border:0;border-top:1px solid var(--line);border-radius:0;background:none;color:var(--ink);text-align:left;width:100%;min-height:50px;font-weight:400}
+.lr:first-child{border-top:0}
+.lr b{font-weight:600}
+.lr small{display:block;color:var(--muted);font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lr .pu{display:flex;gap:4px}
+.lr .fy{text-align:right;font-variant-numeric:tabular-nums;font-size:.9rem}
+.pill.kc{padding:2px 7px;font-size:.76rem}
+details.card{gap:10px}
+details.card summary{font-family:var(--display);font-weight:700;font-size:1.05rem;cursor:pointer}
+details.card[open] summary{margin-bottom:10px}
+.em-ac{padding:4px 0 12px;border-top:1px dashed var(--line)}
+.em-ac p{margin:6px 0 0;font-size:.9rem;max-width:65ch}
 </style>
 </head>
 <body>
@@ -180,34 +196,37 @@ footer{color:var(--muted);font-size:.82rem;max-width:65ch}
 <!-- TARAMA -->
 <section id="s-tarama">
   <div class="card">
-    <h2>Hisse taraması</h2>
-    <p style="margin:0;color:var(--muted);font-size:.9rem">Sayfayı her açtığınızda tüm hisseler yeniden taranır. Elle yenilemek için üstteki Yenile düğmesine basın.</p>
-    <div id="t-durum" aria-live="polite" style="font-size:.9rem;color:var(--muted)">Veri yükleniyor…</div>
-    <div class="grid">
-      <label for="t-pazar">Piyasa<select id="t-pazar"><option value="bist">BIST</option><option value="abd">ABD (NYSE ve NASDAQ)</option></select></label>
-      <label for="t-sektor">Sektör<select id="t-sektor"><option value="">Tüm sektörler</option></select></label>
-      <label for="t-tur">Liste
-        <select id="t-tur">
-          <option value="orta">Orta vade puanına göre</option>
-          <option value="kisa">Kısa vade adayları</option>
-          <option value="sektor">Her sektörün en yüksek puanlısı</option>
-        </select>
-      </label>
+    <div class="seg" role="group" aria-label="Piyasa" id="seg-pazar">
+      <button type="button" data-pazar="bist" aria-pressed="true">BIST</button>
+      <button type="button" data-pazar="abd" aria-pressed="false">ABD</button>
+      <button type="button" data-pazar="emtia" aria-pressed="false">Emtia</button>
     </div>
+    <div id="t-hisse-ayar" style="display:flex;flex-direction:column;gap:10px">
+      <div class="seg" role="group" aria-label="Liste türü" id="seg-tur">
+        <button type="button" data-tur="orta" aria-pressed="true">Orta vade</button>
+        <button type="button" data-tur="kisa" aria-pressed="false">Kısa vade</button>
+        <button type="button" data-tur="sektor" aria-pressed="false">Sektör liderleri</button>
+      </div>
+      <label for="t-sektor" id="t-sektor-etiket">Sektör<select id="t-sektor"><option value="">Tüm sektörler</option></select></label>
+    </div>
+    <select id="t-pazar" hidden><option value="bist">BIST</option><option value="abd">ABD</option><option value="emtia">Emtia</option></select>
+    <select id="t-tur" hidden><option value="orta">orta</option><option value="kisa">kisa</option><option value="sektor">sektor</option></select>
+    <div id="t-durum" aria-live="polite" style="font-size:.82rem;color:var(--muted)">Veri yükleniyor…</div>
+    <div id="t-out"></div>
   </div>
-  <div class="card" id="t-out"></div>
-  <div class="card">
-    <h2>Puan nasıl hesaplanıyor?</h2>
+  <details class="card">
+    <summary>Puan nasıl hesaplanıyor?</summary>
     <ul class="rules">
-      <li><b>Temel puan:</b> F/K'nın sektör ortancasına oranı (15), PD/DD (10), özsermaye kârlılığı (10), kâr büyümesi (10), temettü (5).</li>
+      <li><b>Temel puan:</b> F/K'nın sektör ortancasına oranı (15), PD/DD (10), özsermaye kârlılığı (10), net borç/FAVÖK (10), kâr büyümesi (5).</li>
       <li><b>Teknik puan:</b> fiyatın 200 günlük ortalamaya göre yeri (15), 50 günlüğün 200 günlüğe göre yeri (10), RSI (10), göreli hacim (5), 52 haftalık zirveye uzaklık (10).</li>
-      <li><b>Orta vade puanı</b> temel puanın %60'ı ile teknik puanın %40'ıdır. <b>Kısa vade puanı</b> temelin %20'si ile tekniğin %80'idir.</li>
+      <li><b>Orta vade puanı (O)</b> temel puanın %60'ı ile teknik puanın %40'ıdır. <b>Kısa vade puanı (K)</b> temelin %20'si ile tekniğin %80'idir.</li>
       <li><b>Kısa vade adayı:</b> o gün yükselmiş, hacmi ortalamanın en az 1,5 katı, RSI 70'in altında ve fiyatı 50 günlük ortalamanın üstünde olan hisse.</li>
-      <li>Günlük işlem hacmi 20 milyon TL'nin altındaki hisseler elenir; alıp satarken fiyatı sizin emriniz oynatmasın diye.</li>
+      <li><b>Emtialarda</b> bilanço olmadığı için yalnızca teknik puan hesaplanır.</li>
+      <li>Günlük işlem hacmi BIST'te 20 milyon TL'nin, ABD'de 30 milyon doların altındaki hisseler ve fiyatı 200 günlük ortalamasının yüzde 40'ının altına inmiş hisseler listeye girmez.</li>
     </ul>
-  </div>
-  <div class="card">
-    <h2>Terimler</h2>
+  </details>
+  <details class="card">
+    <summary>Terimler</summary>
     <ul class="rules">
       <li><b>F/K:</b> piyasa değerinin yıllık net kâra oranı. Düşükse kârına göre ucuz demektir; ama kâr tek seferlik bir gelirden şişmiş olabilir, bu yüzden sektörüyle kıyaslanır.</li>
       <li><b>PD/DD:</b> piyasa değerinin özkaynağa oranı. 1'in altı, şirketin defterdeki değerinden ucuza satıldığını gösterir. Yüksek enflasyonda defter değeri eskidiği için tek başına yanıltabilir.</li>
@@ -216,7 +235,7 @@ footer{color:var(--muted);font-size:.82rem;max-width:65ch}
       <li><b>RSI:</b> son 14 günün yükseliş ve düşüşlerini 0–100 arasında özetler. 70 üstü hızlı yükselmiş (geri çekilme riski), 30 altı hızlı düşmüş demektir. Güçlü eğilimlerde uzun süre uç değerde kalabilir.</li>
       <li><b>Göreli hacim:</b> bugünkü işlem hacminin son 10 günün ortalamasına oranı. Yüksek hacimli yükseliş, hareketin arkasında gerçek talep olduğuna işaret eder.</li>
     </ul>
-  </div>
+  </details>
 </section>
 
 <!-- TAKİP -->
@@ -523,8 +542,42 @@ function piyasa(){
   }).catch(function(){$("pz-out").innerHTML='<div><span>Piyasa özeti alınamadı</span><b>–</b></div>'});
 }
 
+/* ---------- emtia ---------- */
+var EMT=[["TVC:GOLD","Ons altın","$"],["TVC:SILVER","Ons gümüş","$"],["TVC:PLATINUM","Platin","$"],["TVC:PALLADIUM","Paladyum","$"],["COMEX:HG1!","Bakır","$"],["NYMEX:CL1!","Ham petrol (WTI)","$"],["ICEEUR:BRN1!","Ham petrol (Brent)","$"],["NYMEX:NG1!","Doğal gaz","$"],["CBOT:ZW1!","Buğday","¢"],["CBOT:ZC1!","Mısır","¢"],["CBOT:ZS1!","Soya","¢"],["ICEUS:KC1!","Kahve","¢"],["ICEUS:SB1!","Şeker","¢"],["ICEUS:CT1!","Pamuk","¢"],["ICEUS:CC1!","Kakao","$"],["BIST:ALTIN","Darphane altın sertifikası (BIST)","TL"],["BIST:GLDTR","Altın borsa yatırım fonu GLDTR (BIST)","TL"],["BIST:GMSTR","Gümüş borsa yatırım fonu GMSTR (BIST)","TL"]];
+var veriE=null,yukE=null,hataE=null,emtiaAcik={};
+function emtiaYukle(zorla){
+  if(yukE)return yukE;if(veriE&&!zorla)return Promise.resolve(veriE);
+  hataE=null;
+  yukE=scan("global",{columns:["name","close","change","RSI","SMA50","SMA200","price_52_week_high","price_52_week_low","Perf.W","Perf.1M","Perf.3M","Perf.Y","ATR","MACD.macd","MACD.signal"],symbols:{tickers:EMT.map(function(e){return e[0]})}}).then(function(j){
+    var m={};j.data.forEach(function(x){m[x.s]=x.d});
+    var L=EMT.filter(function(e){return m[e[0]]}).map(function(e){var d=m[e[0]],o={sem:e[0],kod:d[0],ad:e[1],birim:e[2],fiyat:d[1],deg:d[2],rsi:d[3],m50:d[4],m200:d[5],zirve:d[6],dip:d[7],hafta:d[8],ay:d[9],uc:d[10],yil:d[11],atr:d[12],macd:d[13],macds:d[14]},p=0,mx=0;
+      if(o.m200){var f=(o.fiyat/o.m200-1)*100;o.d200=f;mx+=15;p+=f>25?10:f>=0?15:f>=-10?3:0}
+      if(o.m50&&o.m200){mx+=10;p+=o.m50>o.m200?10:2}
+      if(B(o.rsi)){mx+=10;p+=o.rsi>70?3:o.rsi>65?7:o.rsi>=45?10:o.rsi>=30?6:4}
+      if(o.zirve){var u=(1-o.fiyat/o.zirve)*100;o.uzak=u;mx+=10;p+=u<=10?10:u<=25?6:2}
+      if(B(o.macd)&&B(o.macds)){mx+=5;p+=o.macd>o.macds?5:1}
+      o.K=mx?p/mx*100:0;o.egilim=!o.m200?"Bilinmiyor":(o.fiyat>=o.m200&&o.m50>o.m200)?"Yükselen":(o.fiyat<o.m200&&o.m50<o.m200)?"Düşen":"Kararsız";return o});
+    if(!L.length)throw new Error("Boş yanıt geldi");
+    veriE={zaman:new Date(),liste:L};return veriE;
+  }).catch(function(e){hataE="Emtia verisi alınamadı ("+(e&&e.message?e.message:"bağlantı hatası")+"). Yenile'ye basın.";throw e})
+  .then(function(v){yukE=null;taramaCiz();return v},function(e){yukE=null;taramaCiz();throw e});
+  return yukE;
+}
+function emtiaYorum(o){
+  var c=[];
+  if(o.m200)c.push("Fiyat 200 günlük ortalamanın ("+sy(o.m200)+") %"+sy(Math.abs(o.d200),0)+" "+(o.d200>=0?"üstünde; ana eğilim yukarı.":"altında; ana eğilim aşağı."));
+  if(o.m50&&o.m200)c.push("50 günlük ortalama 200 günlüğün "+(o.m50>o.m200?"üstünde; orta vadeli ivme eğilimi destekliyor.":"altında; orta vadeli ivme zayıf."));
+  if(B(o.rsi))c.push("RSI "+sy(o.rsi,0)+": "+(o.rsi>70?"aşırı alım bölgesi, geri çekilme riski artmış.":o.rsi>=45?"sağlıklı bölgede.":o.rsi>=30?"ivme zayıf.":"aşırı satım bölgesi; tepki gelebilir ama düşen eğilimde tek başına alım nedeni değildir."));
+  if(B(o.macd)&&B(o.macds))c.push("MACD sinyal çizgisinin "+(o.macd>o.macds?"üstünde; kısa vadeli ivme yukarı.":"altında; kısa vadeli ivme aşağı."));
+  var g="Getiri: 1 hafta "+yz(o.hafta)+", 1 ay "+yz(o.ay)+", 3 ay "+yz(o.uc)+", 1 yıl "+yz(o.yil)+".";
+  var z="52 haftalık zirve "+sy(o.zirve)+" (fiyat %"+sy(Math.max(o.uzak||0,0),0)+" altında), dip "+sy(o.dip)+"."+(B(o.atr)&&o.fiyat?" Günlük ortalama oynaklık (ATR) "+sy(o.atr)+", fiyatın %"+sy(o.atr/o.fiyat*100,1)+" kadarı.":"");
+  var e=o.birim==="TL"?"BIST'te işlem görür; aracı kurum hesabınızdan hisse gibi TL ile alınıp satılır.":/altın|gümüş/i.test(o.ad)?"Bu fiyat dolar bazlı ons fiyatıdır. Türkiye'den TL ile erişim için listede BIST'te işlem gören altın sertifikası ve altın, gümüş fonları da yer alıyor; onların fiyatı dolar kurundan da etkilenir.":"Bu, ABD ve Avrupa vadeli işlem borsalarındaki kontrat fiyatıdır. Türkiye'den erişim genellikle yabancı borsalardaki emtia fonları ya da aracı kurumların sunduğu vadeli ürünlerle olur; vadeli ürünler kaldıraçlıdır ve yeni başlayanlar için yüksek risklidir.";
+  return '<p>'+esc(c.join(" "))+'</p><p>'+esc(g)+'</p><p>'+esc(z)+'</p><p style="color:var(--muted)">'+esc(e)+'</p>';
+}
+
 /* ---------- tarama ---------- */
-var taramaListe=[];
+var taramaListe=[],goster=10;
+var pil=function(x,et){return '<span class="pill kc '+(x>=75?"good":x>=55?"warn":"bad")+'">'+(et||"")+Math.round(x)+'</span>'};
 function sektorDoldur(){
   var pz=$("t-pazar").value,v=veri[pz],sel=$("t-sektor"),eski=sel.value,gor={};
   sel.length=1;if(!v)return;
@@ -533,26 +586,49 @@ function sektorDoldur(){
   if(gor[eski])sel.value=eski;
 }
 function taramaCiz(){
-  var pz=$("t-pazar").value,v=veri[pz],out=$("t-out"),d=$("t-durum");
+  var pz=$("t-pazar").value,out=$("t-out"),d=$("t-durum");
+  $("t-hisse-ayar").style.display=pz==="emtia"?"none":"flex";
+  if(pz==="emtia"){
+    if(!veriE){d.textContent=yukE?"Emtia fiyatları alınıyor…":(hataE||"Henüz veri yok.");out.innerHTML="";return}
+    d.textContent=veriE.liste.length+" emtia · "+saat(veriE.zaman)+" · teknik puana göre sıralı · vadeli fiyatlar 10 dakika gecikmeli";
+    var E=veriE.liste.slice().sort(function(a,b){return b.K-a.K});
+    out.innerHTML='<div class="lst">'+E.map(function(o){
+      return '<button type="button" class="lr" data-em="'+esc(o.sem)+'"><span><b>'+esc(o.ad)+'</b><small>'+o.egilim+' eğilim · RSI '+sy(o.rsi,0)+' · 1 ay '+yz(o.ay)+'</small></span><span class="pu">'+pil(o.K)+'</span><span class="fy">'+sy(o.fiyat)+' '+o.birim+'<br><span style="color:var(--'+(o.deg>0?"good":o.deg<0?"bad":"muted")+')">'+yz(o.deg,2)+'</span></span></button>'+(emtiaAcik[o.sem]?'<div class="em-ac">'+emtiaYorum(o)+'</div>':'')}).join("")+'</div>';
+    return;
+  }
+  var v=veri[pz];
   if(!v){d.textContent=yuk[pz]?PAZ[pz].ad+" hisseleri taranıyor…":(hata[pz]||"Henüz veri yok.");out.innerHTML="";return}
   if($("t-sektor").length<=1)sektorDoldur();
   var sek=$("t-sektor").value,tur=$("t-tur").value,L=v.likit.slice();
-  d.innerHTML="<b>"+v.taranan+" hisse tarandı, "+v.likit.length+" hisse puanlandı</b> · "+saat(v.zaman)+(v.gecikmeli?" · veri 15 dakika gecikmeli":"")+"<br>Günlük işlem hacmi "+(pz==="abd"?"30 milyon doların":"20 milyon TL'nin")+" altındaki ve fiyatı 200 günlük ortalamasının yüzde 40'ının altına inmiş hisseler listeye girmez.";
-  if(sek)L=L.filter(function(o){return o.sek===sek});
+  $("t-sektor-etiket").style.display=tur==="sektor"?"none":"flex";
+  if(sek&&tur!=="sektor")L=L.filter(function(o){return o.sek===sek});
   L.sort(function(a,b){return b.orta-a.orta});
-  var baslik="Orta vade puanı en yüksek 30 hisse";
-  if(tur==="kisa"){L=L.filter(function(o){return o.kisa}).sort(function(a,b){return b.kisaP-a.kisaP}).slice(0,40);baslik="Kısa vade adayları"}
-  else if(tur==="sektor"){var g={};L=L.filter(function(o){if(g[o.sek])return false;g[o.sek]=1;return true});baslik="Her sektörün en yüksek puanlısı"}
-  else L=L.slice(0,30);
+  if(tur==="kisa")L=L.filter(function(o){return o.kisa}).sort(function(a,b){return b.kisaP-a.kisaP});
+  else if(tur==="sektor"){var g={};L=L.filter(function(o){if(g[o.sek])return false;g[o.sek]=1;return true})}
+  d.textContent=v.taranan+" hisse tarandı, "+L.length+" hisse bu listede · "+saat(v.zaman)+(v.gecikmeli?" · 15 dk gecikmeli":"")+" · O: orta vade, K: kısa vade puanı";
   taramaListe=L;
-  if(!L.length){out.innerHTML='<h2>'+baslik+'</h2><p style="margin:0;color:var(--muted)">Bu ölçüte uyan hisse yok.</p>';return}
-  var pil=function(x){return '<span class="pill '+(x>=75?"good":x>=55?"warn":"bad")+'">'+Math.round(x)+'</span>'};
-  out.innerHTML='<h2>'+baslik+'</h2><p style="margin:0;color:var(--muted);font-size:.88rem">Bir hisseye dokunun; ölçütleri, bilanço özeti ve yazılı değerlendirmesi açılır.</p><div class="tw"><table><thead><tr><th>Hisse</th><th>Orta</th><th>Kısa</th><th>Fiyat</th><th>Gün</th><th>F/K</th><th>PD/DD</th><th>RSI</th><th>200g fark</th></tr></thead><tbody>'+L.map(function(o,i){
-    return '<tr><td><button type="button" class="ghost" data-i="'+i+'" style="min-height:36px;padding:5px 10px">'+esc(o.kod)+'</button>'+(o.kisa?' <span class="pill warn">kısa vade</span>':'')+'<div style="color:var(--muted)">'+esc(sekAd(o.sek))+(o.neden?' · '+esc(o.neden):'')+'</div></td><td class="n">'+pil(o.orta)+'</td><td class="n">'+pil(o.kisaP)+'</td><td class="n">'+sy(o.fiyat)+'</td><td class="n" style="color:var(--'+(o.deg>0?"good":o.deg<0?"bad":"muted")+')">'+yz(o.deg,2)+'</td><td class="n">'+sy(o.fk)+'<div style="color:var(--muted);font-weight:400">sektör '+sy(o.med,1)+'</div></td><td class="n">'+sy(o.pd)+'</td><td class="n">'+sy(o.rsi,0)+'</td><td class="n">'+yz(o.d200,0)+'</td></tr>'}).join("")+'</tbody></table></div>';
+  if(!L.length){out.innerHTML='<p style="margin:0;color:var(--muted)">Bu ölçüte uyan hisse yok.</p>';return}
+  var n=Math.min(goster,L.length);
+  out.innerHTML='<div class="lst">'+L.slice(0,n).map(function(o,i){
+    return '<button type="button" class="lr" data-i="'+i+'"><span><b>'+esc(o.kod)+'</b><small>'+esc(sekAd(o.sek))+' · F/K '+sy(o.fk,1)+' · RSI '+sy(o.rsi,0)+'</small></span><span class="pu">'+pil(o.orta,"O ")+pil(o.kisaP,"K ")+'</span><span class="fy">'+sy(o.fiyat)+'<br><span style="color:var(--'+(o.deg>0?"good":o.deg<0?"bad":"muted")+')">'+yz(o.deg,2)+'</span></span></button>'}).join("")+'</div>'+
+    (n<L.length?'<button type="button" class="ghost" id="t-daha" style="width:100%;margin-top:10px">'+Math.min(10,L.length-n)+' hisse daha göster ('+n+' / '+L.length+')</button>':'');
 }
-$("t-out").addEventListener("click",function(e){var b=e.target.closest("button[data-i]");if(!b)return;var o=taramaListe[Number(b.dataset.i)];if(o)hisseAc(o,$("t-pazar").value)});
-$("t-pazar").addEventListener("change",function(){$("t-sektor").length=1;taramaCiz();tara($("t-pazar").value).catch(function(){})});
-$("t-sektor").addEventListener("change",taramaCiz);$("t-tur").addEventListener("change",taramaCiz);
+$("t-out").addEventListener("click",function(e){
+  if(e.target.closest("#t-daha")){goster+=10;taramaCiz();return}
+  var em=e.target.closest("button[data-em]");if(em){emtiaAcik[em.dataset.em]=!emtiaAcik[em.dataset.em];taramaCiz();return}
+  var b=e.target.closest("button[data-i]");if(!b)return;var o=taramaListe[Number(b.dataset.i)];if(o)hisseAc(o,$("t-pazar").value);
+});
+function segSec(kap,ozellik,deger){Array.prototype.forEach.call($(kap).querySelectorAll("button"),function(b){b.setAttribute("aria-pressed",b.dataset[ozellik]===deger?"true":"false")})}
+$("seg-pazar").addEventListener("click",function(e){
+  var b=e.target.closest("button[data-pazar]");if(!b)return;var pz=b.dataset.pazar;
+  $("t-pazar").value=pz;segSec("seg-pazar","pazar",pz);goster=10;$("t-sektor").length=1;taramaCiz();
+  if(pz==="emtia")emtiaYukle().catch(function(){});else tara(pz).catch(function(){});
+});
+$("seg-tur").addEventListener("click",function(e){
+  var b=e.target.closest("button[data-tur]");if(!b)return;
+  $("t-tur").value=b.dataset.tur;segSec("seg-tur","tur",b.dataset.tur);goster=10;taramaCiz();
+});
+$("t-sektor").addEventListener("change",function(){goster=10;taramaCiz()});
 
 /* ---------- hisse ayrıntısı ---------- */
 var acik=null;
@@ -683,6 +759,7 @@ $("tk-liste").addEventListener("click",function(e){
 function hepsiniYenile(zorla){
   piyasa();
   var ist=["bist"];if(veri.abd||takip.abd.length||$("t-pazar").value==="abd")ist.push("abd");
+  if(veriE||$("t-pazar").value==="emtia")emtiaYukle(zorla).catch(function(){});
   ist.forEach(function(pz){tara(pz,zorla).then(function(){if(acik&&acik.pz===pz){var y=veri[pz].hepsi[acik.o.kod];if(y){acik.o=y;bilancoCiz()}}}).catch(function(){})});
 }
 $("yenile").addEventListener("click",function(){hepsiniYenile(true)});
